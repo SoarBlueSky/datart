@@ -52,11 +52,11 @@ import {
   getValue,
   getValueByColumnKey,
   isMatchRequirement,
+  setRuntimeDateLevelFieldsInChartConfig,
   toFormattedValue,
   transformToDataSet,
   transformToObjectArray,
   valueFormatter,
-  setRuntimeDateLevelFieldsInChartConfig,
 } from '../chartHelper';
 
 describe('Chart Helper ', () => {
@@ -2231,6 +2231,15 @@ describe('Chart Helper ', () => {
       ];
       expect(getRuntimeDateLevelFields(config)).toEqual(config);
     });
+
+    test('test the config is undefined', () => {
+      const config = undefined;
+      expect(getRuntimeDateLevelFields(config)).toEqual(undefined);
+    });
+    test('test the config is []', () => {
+      const config = [];
+      expect(getRuntimeDateLevelFields(config)).toEqual(config);
+    });
   });
 
   describe('getRuntimeComputedFields Test', () => {
@@ -2549,7 +2558,7 @@ describe('Chart Helper ', () => {
       ]);
     });
 
-    test('Test are not run when modifying the date level', () => {
+    test('Test when no date level field is selected', () => {
       const dateLevelComputedFields = [];
       const replacedConfig = {
         category: ChartDataViewFieldCategory.DateLevelComputedField,

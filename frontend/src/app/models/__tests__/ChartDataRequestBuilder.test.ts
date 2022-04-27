@@ -22,6 +22,7 @@ import {
   ChartDataViewFieldCategory,
   DataViewFieldType,
   FilterConditionType,
+  RUNTIME_DATE_LEVEL_KEY,
 } from 'app/constants';
 import { getChartDrillOption } from 'app/utils/internalChartHelper';
 import { FilterSqlOperator, RECOMMEND_TIME } from 'globalConstants';
@@ -323,6 +324,38 @@ describe('ChartDataRequestBuild Test', () => {
     const requestParams2 = builder2.build();
 
     expect(requestParams2.groups).toEqual([]);
+
+    const chartDataConfigs3 = [
+      {
+        type: ChartDataSectionType.GROUP,
+        key: 'aggregation',
+        rows: [
+          {
+            colName: '到期时间',
+            type: DataViewFieldType.DATE,
+            category: ChartDataViewFieldCategory.DateLevelComputedField as any,
+            [RUNTIME_DATE_LEVEL_KEY]: {
+              colName: '到期时间（按周）',
+              type: DataViewFieldType.DATE,
+              category:
+                ChartDataViewFieldCategory.DateLevelComputedField as any,
+            },
+          },
+        ],
+      },
+    ];
+
+    const builder3 = new ChartDataRequestBuilder(
+      dataView,
+      chartDataConfigs3,
+      chartSettingConfigs,
+      pageInfo,
+      enableScript,
+      enableAggregation,
+    );
+    const requestParams3 = builder3.build();
+
+    expect(requestParams3.groups).toEqual([{ column: '到期时间（按周）' }]);
   });
 
   test('should get filters', () => {
@@ -893,6 +926,33 @@ describe('ChartDataRequestBuild Test', () => {
       { alias: 'f1', snippet: 'a' },
       { alias: 'f2', snippet: 'b' },
       { alias: 'f3', snippet: '' },
+    ]);
+
+    const dataView1 = {
+      id: 'view-id',
+      computedFields: [
+        { id: 'f1', expression: '[a' },
+        {
+          id: 'f2',
+          expression: '[b]',
+          [RUNTIME_DATE_LEVEL_KEY]: { id: 'f3', expression: '[f3]' },
+        },
+      ],
+    } as any;
+
+    const builder1 = new ChartDataRequestBuilder(
+      dataView1,
+      chartDataConfigs,
+      chartSettingConfigs,
+      pageInfo,
+      enableScript,
+      enableAggregation,
+    );
+    const requestParams1 = builder1.build();
+
+    expect(requestParams1.functionColumns).toEqual([
+      { alias: 'f1', snippet: 'a' },
+      { alias: 'f3', snippet: 'f3' },
     ]);
   });
 
